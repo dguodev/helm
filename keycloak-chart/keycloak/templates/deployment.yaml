@@ -22,15 +22,25 @@ spec:
             - sh
             - -c
             - |
+              # Print environment variables for debugging
+              echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
+              echo "AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:0:5}..." # Only show first 5 chars for security
+              echo "AWS_REGION: $AWS_REGION"
+              echo "S3 Bucket: {{ $.Values.initContainer.s3.bucket }}"
+              
               # Download SPIs
               {{- range .Values.initContainer.s3.spiKeys }}
+              echo "Downloading SPI: {{ . }}"
               aws s3 cp s3://{{ $.Values.initContainer.s3.bucket }}/{{ . }} /providers/$(basename {{ . | quote }}) || echo "Failed to download SPI: {{ . }}"
               {{- end }}
 
               # Download and extract themes
               {{- range .Values.initContainer.s3.themeKeys }}
+              echo "Downloading theme: {{ . }}"
               aws s3 cp s3://{{ $.Values.initContainer.s3.bucket }}/{{ . }} /tmp/$(basename {{ . | quote }}) || echo "Failed to download theme: {{ . }}"
+              echo "Extracting theme: {{ . }}"
               unzip /tmp/$(basename {{ . | quote }}) -d /themes/ || echo "Failed to unzip theme: {{ . }}"
+              echo "Moving theme: {{ . }}"
               mv /themes/$(basename {{ . | quote }} | sed 's/\.zip$//') /themes/$(basename {{ . | quote }} | sed 's/\.zip$//') || echo "Failed to move theme: {{ . }}"
               rm /tmp/$(basename {{ . | quote }})
               {{- end }}
