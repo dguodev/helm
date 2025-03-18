@@ -21,6 +21,19 @@ spec:
       serviceAccountName: {{ include "keycloak.serviceAccountName" . }}
       securityContext:
         {{- toYaml .Values.podSecurityContext | nindent 8 }}
+      initContainers:
+        - name: init-keycloak
+          image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+          command: ["/opt/keycloak/bin/kc.sh"]
+          args: ["build"]
+          env:
+            {{- if .Values.keycloak.database.type }}
+            - name: KC_DB
+              value: {{ .Values.keycloak.database.type }}
+            {{- end }}
+            {{- with .Values.keycloak.extraEnv }}
+            {{- toYaml . | nindent 12 }}
+            {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           securityContext:

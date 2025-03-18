@@ -5,11 +5,6 @@ metadata:
   labels:
     {{- include "keycloak.labels" . | nindent 4 }}
 spec:
-  containers:
-    - name: keycloak
-      image: quay.io/keycloak/keycloak:latest
-      command: ["/opt/keycloak/bin/kc.sh"]
-      args: ["start-dev"]  # Let it run normally first
   type: {{ .Values.service.type }}
   ports:
     - port: {{ .Values.service.port }}
