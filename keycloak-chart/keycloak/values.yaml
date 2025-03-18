@@ -37,8 +37,8 @@ start:
 initContainer:
   enabled: true
   s3:
-    bucket: "your-s3-bucket-name"  # Replace with your bucket name
-    region: "us-east-1"  # Replace with your bucket region
+    bucket: "kcext"  # Replace with your bucket name
+    region: "us-west-2"  # Replace with your bucket region
     spiKeys:  # List of SPI S3 object keys
       - "path/to/custom-spi-1.jar"
       - "path/to/custom-spi-2.jar"
