@@ -14,6 +14,29 @@ spec:
       labels:
         {{- include "keycloak.selectorLabels" . | nindent 8 }}
     spec:
+      initContainers:
+        {{- if .Values.initContainer.enabled }}
+        - name: download-spi-and-theme
+          image: curlimages/curl:latest  # Lightweight image with curl
+          command:
+            - sh
+            - -c
+            - |
+              # Download SPI
+              curl -L -o /tmp/spi.jar "{{ .Values.initContainer.spi.url }}"
+              mv /tmp/spi.jar /providers/
+
+              # Download and extract theme (assuming it's a zip file)
+              curl -L -o /tmp/theme.zip "{{ .Values.initContainer.theme.url }}"
+              unzip /tmp/theme.zip -d /themes/
+              mv /themes/{{ .Values.initContainer.theme.name }} /themes/{{ .Values.initContainer.theme.name }}
+              rm /tmp/theme.zip
+          volumeMounts:
+            - name: providers
+              mountPath: /providers
+            - name: themes
+              mountPath: /themes
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

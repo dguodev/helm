@@ -32,3 +32,11 @@ persistence:
 # values.yaml (add this)
 start:
   mode: "start-dev"  # Options: "start" (production), "start-dev" (development)
+
+initContainer:
+  enabled: true
+  spi:
+    url: "https://example.com/custom-spi.jar"  # Replace with your SPI URL
+  theme:
+    url: "https://example.com/custom-theme.zip"  # Replace with your theme URL (zip file assumed)
+    name: "custom-theme"  # Name of the theme directory after extraction
