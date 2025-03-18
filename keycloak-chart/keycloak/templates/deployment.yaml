@@ -17,24 +17,42 @@ spec:
       initContainers:
         {{- if .Values.initContainer.enabled }}
         - name: download-spi-and-theme
-          image: busybox:latest
+          image: amazon/aws-cli:latest  # Includes awscli and unzip
           command:
             - sh
             - -c
             - |
-              # Download SPI
-              wget -O /providers/custom-spi.jar "{{ .Values.initContainer.spi.url }}" || echo "Failed to download SPI"
-              # Download and extract theme
-              wget -O /tmp/theme.zip "{{ .Values.initContainer.theme.url }}" || echo "Failed to download theme"
-              unzip /tmp/theme.zip -d /themes/ || echo "Failed to unzip theme"
-              mv /themes/{{ .Values.initContainer.theme.name }} /themes/{{ .Values.initContainer.theme.name }} || echo "Failed to move theme"
-              rm /tmp/theme.zip
+              # Download SPIs
+              {{- range .Values.initContainer.s3.spiKeys }}
+              aws s3 cp s3://{{ $.Values.initContainer.s3.bucket }}/{{ . }} /providers/$(basename {{ . | quote }}) || echo "Failed to download SPI: {{ . }}"
+              {{- end }}
+
+              # Download and extract themes
+              {{- range .Values.initContainer.s3.themeKeys }}
+              aws s3 cp s3://{{ $.Values.initContainer.s3.bucket }}/{{ . }} /tmp/$(basename {{ . | quote }}) || echo "Failed to download theme: {{ . }}"
+              unzip /tmp/$(basename {{ . | quote }}) -d /themes/ || echo "Failed to unzip theme: {{ . }}"
+              mv /themes/$(basename {{ . | quote }} | sed 's/\.zip$//') /themes/$(basename {{ . | quote }} | sed 's/\.zip$//') || echo "Failed to move theme: {{ . }}"
+              rm /tmp/$(basename {{ . | quote }})
+              {{- end }}
+          env:
+            - name: AWS_ACCESS_KEY_ID
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: access-key-id
+            - name: AWS_SECRET_ACCESS_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: aws-credentials
+                  key: secret-access-key
+            - name: AWS_REGION
+              value: {{ .Values.initContainer.s3.region | quote }}
           volumeMounts:
             - name: providers
               mountPath: /providers
             - name: themes
               mountPath: /themes
-        {{- end }}    
+        {{- end }}
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"

@@ -33,10 +33,15 @@ persistence:
 start:
   mode: "start-dev"  # Options: "start" (production), "start-dev" (development)
 
+# values.yaml
 initContainer:
   enabled: true
-  spi:
-    url: "https://example.com/custom-spi.jar"  # Replace with your SPI URL
-  theme:
-    url: "https://example.com/custom-theme.zip"  # Replace with your theme URL (zip file assumed)
-    name: "custom-theme"  # Name of the theme directory after extraction
+  s3:
+    bucket: "your-s3-bucket-name"  # Replace with your bucket name
+    region: "us-east-1"  # Replace with your bucket region
+    spiKeys:  # List of SPI S3 object keys
+      - "path/to/custom-spi-1.jar"
+      - "path/to/custom-spi-2.jar"
+    themeKeys:  # List of theme S3 object keys (ZIP files)
+      - "path/to/custom-theme-1.zip"
+      - "path/to/custom-theme-2.zip"
