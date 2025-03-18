@@ -18,6 +18,13 @@ spec:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
           imagePullPolicy: {{ .Values.image.pullPolicy }}
+          command:
+            - "/opt/keycloak/bin/kc.sh"
+          args:
+            - {{ .Values.start.mode }}
+            {{- range .Values.start.options }}
+            - {{ . | quote }}
+            {{- end }}
           env:
             - name: KEYCLOAK_ADMIN
               value: {{ .Values.env.KEYCLOAK_ADMIN | quote }}

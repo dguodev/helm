@@ -23,8 +23,12 @@ env:
 
 serviceAccount:
   create: false
-  
+
 persistence:
   enabled: true
   storageClass: "standard"
   size: 8Gi
+
+# values.yaml (add this)
+start:
+  mode: "start"  # Options: "start" (production), "start-dev" (development)
