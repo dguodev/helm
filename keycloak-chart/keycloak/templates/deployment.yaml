@@ -17,26 +17,24 @@ spec:
       initContainers:
         {{- if .Values.initContainer.enabled }}
         - name: download-spi-and-theme
-          image: curlimages/curl:latest  # Lightweight image with curl
+          image: busybox:latest
           command:
             - sh
             - -c
             - |
               # Download SPI
-              curl -L -o /tmp/spi.jar "{{ .Values.initContainer.spi.url }}"
-              mv /tmp/spi.jar /providers/
-
-              # Download and extract theme (assuming it's a zip file)
-              curl -L -o /tmp/theme.zip "{{ .Values.initContainer.theme.url }}"
-              unzip /tmp/theme.zip -d /themes/
-              mv /themes/{{ .Values.initContainer.theme.name }} /themes/{{ .Values.initContainer.theme.name }}
+              wget -O /providers/custom-spi.jar "{{ .Values.initContainer.spi.url }}" || echo "Failed to download SPI"
+              # Download and extract theme
+              wget -O /tmp/theme.zip "{{ .Values.initContainer.theme.url }}" || echo "Failed to download theme"
+              unzip /tmp/theme.zip -d /themes/ || echo "Failed to unzip theme"
+              mv /themes/{{ .Values.initContainer.theme.name }} /themes/{{ .Values.initContainer.theme.name }} || echo "Failed to move theme"
               rm /tmp/theme.zip
           volumeMounts:
             - name: providers
               mountPath: /providers
             - name: themes
               mountPath: /themes
-        {{- end }}
+        {{- end }}    
       containers:
         - name: {{ .Chart.Name }}
           image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
