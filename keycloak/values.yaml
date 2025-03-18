@@ -120,7 +120,7 @@ affinity: {}
 
 keycloak:
   database:
-    type: h2
+    type: dev-file
     host: ""
     port: 5432
     database: keycloak
@@ -132,7 +132,7 @@ keycloak:
   configuration:
     hostname: "keycloak.local"
     adminUser: admin
-    adminPassword: ""
+    adminPassword: "admin"
     existingSecret: ""
     existingSecretKey: ""
     proxy: edge
@@ -142,7 +142,18 @@ keycloak:
       enabled: true
       path: /health/ready
 
-  extraEnv: []
+  extraEnv:
+    - name: KC_DB
+      value: dev-file
+    - name: KC_HTTP_ENABLED
+      value: "true"
+    - name: KC_HTTPS_REQUIRED
+      value: "none"
+    - name: KC_HOSTNAME_STRICT
+      value: "false"
+    - name: KC_HOSTNAME_STRICT_HTTPS
+      value: "false"
+
   extraVolumes: []
   extraVolumeMounts: []
 
