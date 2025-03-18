@@ -130,13 +130,13 @@ keycloak:
     existingSecretKey: ""
 
   configuration:
-    hostname: ""
+    hostname: "keycloak.local"
     adminUser: admin
     adminPassword: ""
     existingSecret: ""
     existingSecretKey: ""
     proxy: edge
-    production: true
+    production: false
     features: ""
     health:
       enabled: true
