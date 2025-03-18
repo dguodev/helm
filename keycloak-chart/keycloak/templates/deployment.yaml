@@ -22,25 +22,15 @@ spec:
             - sh
             - -c
             - |
-              # Print environment variables for debugging
-              echo "AWS_ACCESS_KEY_ID: $AWS_ACCESS_KEY_ID"
-              echo "AWS_SECRET_ACCESS_KEY: ${AWS_SECRET_ACCESS_KEY:0:5}..." # Only show first 5 chars for security
-              echo "AWS_REGION: $AWS_REGION"
-              echo "S3 Bucket: {{ $.Values.initContainer.s3.bucket }}"
-              
               # Download SPIs
               {{- range .Values.initContainer.s3.spiKeys }}
-              echo "Downloading SPI: {{ . }}"
               aws s3 cp s3://{{ $.Values.initContainer.s3.bucket }}/{{ . }} /providers/$(basename {{ . | quote }}) || echo "Failed to download SPI: {{ . }}"
               {{- end }}
 
               # Download and extract themes
               {{- range .Values.initContainer.s3.themeKeys }}
-              echo "Downloading theme: {{ . }}"
               aws s3 cp s3://{{ $.Values.initContainer.s3.bucket }}/{{ . }} /tmp/$(basename {{ . | quote }}) || echo "Failed to download theme: {{ . }}"
-              echo "Extracting theme: {{ . }}"
               unzip /tmp/$(basename {{ . | quote }}) -d /themes/ || echo "Failed to unzip theme: {{ . }}"
-              echo "Moving theme: {{ . }}"
               mv /themes/$(basename {{ . | quote }} | sed 's/\.zip$//') /themes/$(basename {{ . | quote }} | sed 's/\.zip$//') || echo "Failed to move theme: {{ . }}"
               rm /tmp/$(basename {{ . | quote }})
               {{- end }}
@@ -57,6 +47,8 @@ spec:
                   key: secret-access-key
             - name: AWS_REGION
               value: {{ .Values.initContainer.s3.region | quote }}
+            - name: AWS_SESSION_TOKEN
+              value: IQoJb3JpZ2luX2VjEA0aCXVzLWVhc3QtMSJGMEQCIG5nSOxaT8ytEgK/bU+ii9Qwpljet5Gc2srjEAdrPS9NAiB/8kUl23M7XuAubIw53hWzvfNXpo+5eBFn2guj6SXxwiqLAwhmEAAaDDc4NTA2MjMwMTg3OSIMmNSQlfGvUuUL0wxOKugCpKI5PP2JRKjc+FWszD0jLwSqG7ZN1aolrX4ZZg3BwrYslWbTuYWi6Qa1c92iJxQSp1eYF7JV44mJgOHji6Fthwp9NWF2Yf7II7Xwuj0mNGKCCpvlYy5d3gJSr8uqe0qlWgAQXh91jsOts8iTNfHHzwbr2fMlEuaxIOTasJCCb3Pq1kKcgKFmT/ktwPVYbHBcoYWfOtUWUqyE61+QIcxyvzBNJpKcHy4Y7Gph01NX+M3eq4GkD2NmrmPqNBmpthDIm20FugEOqjdSXxqhdY/lbl976Ml6z8J9fO9voO4WWlX/RQVApBZIGHMgswTu6j+9h1WpNwToFpMTluUyRW0TWP6aCQBK8d7R3cDIeS0OrgYY5tZkB4GRuVBQV6AnuZvfaWLj1GpoVGRBG/6ncGEpnKb0HNoQPqdfpuLsm6d/EQWq0CZOd3M/C5EWnn4TLapk675PtSZvDKQsWAAr4gVfjHXnyzaPRvaAMNG3574GOqcB7qTWUVe9uY8MjqbSRZXKftpgTCF8Gij69JK5pRO0dXcMSCQqIgGK7447Xv2ZRTpX3jpM8Gtxe2Z/n03TUSQFRhgJTag13reZxRKPnOWKaMlYzzuUg9CxLk55x2hJOBTwYRLJ+7tF3pqkhYNuOp8lF/c64Atf3XJyH8SCqAHZewfgr2eqYcpCGzwn8NLu+W5PRjSAc9mFQQdd3t8IUmTb2y5C9/51e6A=
           volumeMounts:
             - name: providers
               mountPath: /providers
