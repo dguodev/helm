@@ -120,11 +120,11 @@ affinity: {}
 
 keycloak:
   database:
-    type: postgres
+    type: h2
     host: ""
     port: 5432
     database: keycloak
-    username: keycloak
+    username: sa
     password: ""
     existingSecret: ""
     existingSecretKey: ""
