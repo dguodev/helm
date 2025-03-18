@@ -31,4 +31,4 @@ persistence:
 
 # values.yaml (add this)
 start:
-  mode: "start"  # Options: "start" (production), "start-dev" (development)
+  mode: "start-dev"  # Options: "start" (production), "start-dev" (development)
